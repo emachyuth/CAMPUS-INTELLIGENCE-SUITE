@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Campus Intelligence Suite — AttendSafe + ROOMIQ</title>
+<meta name="description" content="Unified AttendSafe attendance planner and ROOMIQ smart floor manager in one standalone HTML app.">
+<style>
+
+:root{--bg:#06111f;--p:#0d2035;--p2:#102943;--l:#24425e;--t:#eef6ff;--m:#9bb4cf;--c:#49d7ff;--g:#37e39b;--y:#ffc83d;--r:#ff5e7a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#123050,#06111f 45%);color:var(--t);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1450px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center}.brand{display:flex;gap:13px;align-items:center}.logo{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#55e4d3,#609cff);display:grid;place-items:center;color:#06111f;font-weight:900}.brand h1{margin:0;font-size:30px}.brand p,.mini{color:var(--m);margin:4px 0}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}select,input,button{font:inherit}select,input{background:#081a2d;border:1px solid #2a4965;color:var(--t);padding:10px 12px;border-radius:11px}button{padding:11px 15px;border-radius:11px;border:0;font-weight:800;cursor:pointer}.primary{background:var(--c);color:#04111c}.ghost{background:#132b45;color:var(--t);border:1px solid var(--l)}
+.hero,.card{background:rgba(13,32,53,.94);border:1px solid var(--l);border-radius:20px}.hero{margin-top:20px;padding:23px}.hero h2,.card h2{margin-top:0}.hero p{color:var(--m);line-height:1.6;max-width:1050px}.alert{padding:14px 17px;border-radius:13px;margin-top:14px;font-weight:750}.safe{background:#0d3b2c;color:#8bffca;border:1px solid #237d5b}.warn{background:#3b2b08;color:#ffdc68;border:1px solid #84651c}.danger{background:#421424;color:#ff9eb1;border:1px solid #8e2945}.info{background:#102f46;color:#91e3ff;border:1px solid #27627f}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:16px}.card{padding:19px}.kpi small{color:var(--m)}.kpi b{display:block;font-size:33px;margin-top:7px}.green{color:var(--g)}.yellow{color:var(--y)}.red{color:var(--r)}.bar{height:8px;background:#19334c;border-radius:8px;margin-top:10px;overflow:hidden}.fill{height:100%;border-radius:8px}
+.planner{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:15px}.big{font-size:20px;font-weight:900;margin-top:4px}.main{display:grid;grid-template-columns:1.55fr 1fr;gap:15px;margin-top:15px}.subject{padding:17px 0;border-bottom:1px solid #1d3852}.subject:last-child{border-bottom:0}.row{display:grid;grid-template-columns:1fr 95px 95px 1.05fr;gap:11px;align-items:center}.sname{font-weight:850;font-size:16px}.field label{display:block;color:var(--m);font-size:12px;margin-bottom:4px}.field input{width:100%}.plan{display:flex;flex-direction:column;gap:9px}.planitem{padding:13px;border:1px solid var(--l);border-radius:13px;background:#091c2f}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#143b50;color:#8cecff;font-size:12px;font-weight:800;margin-top:6px}.dp{background:#4b1729;color:#ff9eb2}.gp{background:#123d30;color:#8affc8}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}.chart{height:240px;display:flex;align-items:flex-end;gap:7px;padding:12px 4px}.bc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px}.br{width:min(50px,70%);border-radius:7px 7px 2px 2px}.bl{font-size:10px;color:var(--m);text-align:center}.foot{text-align:center;color:var(--m);padding:18px;font-size:12px}
+.chatbtn{position:fixed;right:24px;bottom:24px;width:61px;height:61px;border-radius:50%;background:linear-gradient(135deg,#49d7ff,#a98bff);color:#03111e;font-size:24px;z-index:5}.chat{position:fixed;right:24px;bottom:96px;width:min(390px,calc(100vw - 28px));height:510px;background:#081a2d;border:1px solid #31516d;border-radius:20px;box-shadow:0 20px 60px #000b;display:none;flex-direction:column;z-index:6;overflow:hidden}.chat.open{display:flex}.chathead{padding:14px 16px;background:#102943;border-bottom:1px solid var(--l);display:flex;justify-content:space-between}.msgs{flex:1;overflow:auto;padding:13px}.msg{padding:9px 11px;border-radius:12px;margin-bottom:8px;line-height:1.45;font-size:13px}.bot{background:#102943}.usr{background:#143c50;margin-left:30px}.chatinput{display:flex;gap:7px;padding:9px;border-top:1px solid var(--l)}.chatinput input{flex:1}
+@media(max-width:1000px){.grid4{grid-template-columns:repeat(2,1fr)}.main,.two{grid-template-columns:1fr}.row{grid-template-columns:1fr 90px 90px}.row>div:last-child{grid-column:1/-1}.planner{grid-template-columns:1fr}}@media(max-width:600px){.wrap{padding:13px}.top{flex-direction:column;align-items:flex-start}.grid4{grid-template-columns:1fr}.brand h1{font-size:25px}}
+
+.datebtn{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:250px;padding:12px 16px;border:1px solid #284564;border-radius:14px;background:#081b2e;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.datebtn:hover{border-color:#58d8ff}
+.calicon{color:#67d9ff;font-size:18px}
+.calendar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:1000;display:none}
+.calendar-backdrop.open{display:block}
+.calendar-pop{position:absolute;right:24px;top:78px;width:360px;background:#0b2036;border:1px solid #294865;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:18px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-title{font-size:20px;font-weight:800}
+.cal-nav{width:38px;height:38px;border-radius:10px;border:1px solid #294865;background:#102b45;color:#fff;cursor:pointer;font-size:20px}
+.cal-nav:disabled{opacity:.35;cursor:not-allowed}
+.cal-week,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-week div{font-size:12px;text-align:center;color:#8fa8c1;padding:5px 0}
+.cal-day{height:40px;border:0;border-radius:10px;background:transparent;color:#eaf4ff;font-weight:700;cursor:pointer}
+.cal-day:hover:not(:disabled){background:#163c5c}
+.cal-day.muted{opacity:.25;cursor:default}
+.cal-day.selected{background:#54d7ff;color:#082039}
+.cal-day:disabled{opacity:.25;cursor:not-allowed}
+.cal-help{text-align:center;color:#8fa8c1;font-size:12px;margin-top:12px}
+
+.roomiq-app{
+ --bg:#050914;--panel:#0b1220;--panel2:#101a2d;--line:#22304a;--text:#f4f7fb;--muted:#8fa1ba;
+ --cyan:#55e6ff;--blue:#6c7cff;--green:#37e6a1;--amber:#ffca5c;--red:#ff6685;--shadow:0 24px 70px rgba(0,0,0,.38);
+min-height:100vh;}
+
+
+.roomiq-app *{box-sizing:border-box}.roomiq-app html{scroll-behavior:smooth}.roomiq-app body{margin:0;background:
+ radial-gradient(circle at 80% -10%,rgba(84,113,255,.24),transparent 32%),
+ radial-gradient(circle at 5% 20%,rgba(41,213,255,.09),transparent 25%),var(--bg);
+ color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+.roomiq-app button,.roomiq-app input,.roomiq-app select{font:inherit}.roomiq-app .wrap{max-width:1440px;margin:auto;padding:24px 26px 60px}
+.roomiq-app .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 24px}
+.roomiq-app .brand{display:flex;align-items:center;gap:12px}.roomiq-app .logo{width:42px;height:42px;border:1px solid #3de4ff55;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#1a314d,#0a1220);box-shadow:0 0 30px #3de4ff22;font-weight:900;color:var(--cyan)}
+.roomiq-app .brand h1{font-size:19px;margin:0;letter-spacing:.12em}.roomiq-app .brand small{color:var(--muted)}
+.roomiq-app .navlinks{display:flex;gap:8px;flex-wrap:wrap}.roomiq-app .navlinks a{color:#aebbd0;text-decoration:none;padding:8px 11px;border-radius:10px}.roomiq-app .navlinks a:hover{background:#ffffff08;color:white}
+.roomiq-app .hero{padding:48px 0 34px;display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
+.roomiq-app .eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.roomiq-app .hero h2{font-size:clamp(38px,5vw,72px);line-height:.98;margin:12px 0 18px;letter-spacing:-.055em;max-width:800px}
+.roomiq-app .hero h2 span{color:var(--cyan);text-shadow:0 0 32px #55e6ff22}.roomiq-app .hero p{font-size:16px;color:#a7b5c9;max-width:690px}
+.roomiq-app .heroStats{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.roomiq-app .stat{border:1px solid var(--line);background:#0b1322cc;padding:10px 13px;border-radius:13px}.roomiq-app .stat b{display:block;font-size:20px}.roomiq-app .stat span{font-size:11px;color:var(--muted)}
+.roomiq-app .heroCard{position:relative;border:1px solid #334462;border-radius:24px;padding:22px;background:linear-gradient(145deg,#101c30,#07101c);box-shadow:var(--shadow);overflow:hidden}
+.roomiq-app .heroCard:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:#55e6ff18;filter:blur(25px);right:-70px;top:-80px}
+.roomiq-app .scan{font-size:12px;color:#7f92ad;display:flex;justify-content:space-between;margin-bottom:16px}.roomiq-app .pulse{color:var(--green)}.roomiq-app .floorMini{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.roomiq-app .miniRoom{height:72px;border:1px solid #2b3a55;border-radius:12px;background:#0d1727;padding:9px;position:relative}.roomiq-app .miniRoom b{font-size:12px}.roomiq-app .miniRoom i{display:block;font-style:normal;font-size:10px;color:var(--green);margin-top:7px}.roomiq-app .miniRoom.busy i{color:var(--red)}.roomiq-app .miniRoom.busy{border-color:#6a2940}
+.roomiq-app .searchWrap{position:relative;margin-top:18px}.roomiq-app .search{width:100%;background:#091221;border:1px solid #2b3c58;color:white;border-radius:18px;padding:18px 52px 18px 18px;outline:none;box-shadow:0 10px 35px #0004}.roomiq-app .search:focus{border-color:#55e6ff88;box-shadow:0 0 0 4px #55e6ff0d}.roomiq-app .searchBtn{position:absolute;right:7px;top:7px;bottom:7px;width:44px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--cyan),#6d7cff);color:#04101a;font-weight:900;cursor:pointer}
+.roomiq-app .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.roomiq-app .chip{border:1px solid #293852;background:#0a1322;color:#b5c2d4;border-radius:999px;padding:7px 10px;cursor:pointer}.roomiq-app .chip:hover{border-color:#55e6ff77;color:white}
+.roomiq-app .aiResult{display:none;margin-top:12px;border:1px solid #31445f;background:#091322;border-radius:16px;padding:14px}.roomiq-app .aiResult.show{display:block}.roomiq-app .intent{display:flex;justify-content:space-between;gap:12px;align-items:center}.roomiq-app .intent b{color:white}.roomiq-app .intent span{font-size:11px;color:var(--cyan)}.roomiq-app .aiList{display:grid;gap:8px;margin-top:10px}.roomiq-app .aiItem{display:flex;justify-content:space-between;align-items:center;border:1px solid #23324a;padding:10px;border-radius:11px}.roomiq-app .aiItem small{color:var(--muted)}.roomiq-app .go{border:0;background:#123248;color:var(--cyan);padding:7px 10px;border-radius:9px;cursor:pointer}
+.roomiq-app .section{margin-top:46px}.roomiq-app .sectionHead{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:16px}.roomiq-app .sectionHead h3{font-size:26px;margin:0}.roomiq-app .sectionHead p{margin:4px 0 0;color:var(--muted)}
+.roomiq-app .filters{display:flex;gap:9px;flex-wrap:wrap}.roomiq-app .select,.roomiq-app .toggle{background:#0b1423;border:1px solid var(--line);color:white;border-radius:11px;padding:10px 12px}
+.roomiq-app .floorTabs{display:flex;gap:8px;overflow:auto;padding-bottom:5px;margin-bottom:13px}.roomiq-app .floorTab{white-space:nowrap;border:1px solid var(--line);background:#0a1320;color:#9eafc6;padding:9px 13px;border-radius:11px;cursor:pointer}.roomiq-app .floorTab.active{border-color:#55e6ff77;color:#55e6ff;background:#0c2030}
+.roomiq-app .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.roomiq-app .room{border:1px solid var(--line);border-radius:17px;padding:15px;background:linear-gradient(145deg,#0e1829,#09111e);min-height:170px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}.roomiq-app .room:hover{transform:translateY(-3px);border-color:#55e6ff66;box-shadow:0 15px 35px #0005}.roomiq-app .room.available{border-color:#1d6b58}.roomiq-app .room.busy{border-color:#632a3b}.roomiq-app .room.claimed{border-color:#5c52b8;box-shadow:0 0 0 1px #6c7cff44 inset}
+.roomiq-app .roomTop{display:flex;justify-content:space-between;gap:8px}.roomiq-app .roomName{font-weight:800;font-size:17px}.roomiq-app .floorTag{font-size:10px;color:#9bb0c8;border:1px solid #293852;padding:4px 7px;border-radius:999px}.roomiq-app .status{display:inline-flex;align-items:center;gap:6px;font-size:11px;margin-top:10px}.roomiq-app .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}.roomiq-app .busy .dot{background:var(--red);box-shadow:0 0 10px var(--red)}.roomiq-app .claimed .dot{background:var(--blue)}.roomiq-app .roomMeta{color:var(--muted);font-size:11px;margin-top:13px;min-height:39px}.roomiq-app .roomFoot{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.roomiq-app .timer{font-weight:800;color:#dce7f5}.roomiq-app .miniBtn{border:1px solid #2a3c58;background:#0c1727;color:#b9c8da;padding:7px 9px;border-radius:9px;cursor:pointer}.roomiq-app .miniBtn:hover{color:white;border-color:#55e6ff66}
+.roomiq-app .map{border:1px solid var(--line);border-radius:22px;padding:20px;background:linear-gradient(150deg,#091221,#0c1523);overflow:hidden}.roomiq-app .building{display:grid;gap:18px;perspective:1000px}.roomiq-app .floor{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}.roomiq-app .floorLabel{color:#7e91aa;font-size:11px;text-transform:uppercase;letter-spacing:.1em}.roomiq-app .floorPlane{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;transform:rotateX(4deg) rotateY(-4deg);transform-style:preserve-3d}.roomiq-app .mapRoom{min-height:92px;border:1px solid #263750;border-radius:12px;background:#0c1726;padding:10px;cursor:pointer;transition:.2s}.roomiq-app .mapRoom:hover{transform:translateZ(8px);border-color:#55e6ff66}.roomiq-app .mapRoom.available{background:linear-gradient(145deg,#0b2b29,#0b1724);border-color:#1d6b58}.roomiq-app .mapRoom.busy{background:linear-gradient(145deg,#28131c,#0e1622);border-color:#5b2839}.roomiq-app .mapRoom .n{font-weight:800}.roomiq-app .mapRoom .s{font-size:10px;color:#7e91aa;margin-top:7px}.roomiq-app .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;color:#93a4bb;font-size:11px}.roomiq-app .legend span{display:flex;gap:6px;align-items:center}.roomiq-app .legend i{width:9px;height:9px;border-radius:50%;display:inline-block}.roomiq-app .legend .a{background:var(--green)}.roomiq-app .legend .b{background:var(--red)}.roomiq-app .legend .c{background:var(--blue)}
+.roomiq-app .drawer{position:fixed;inset:0;display:none;z-index:50}.roomiq-app .drawer.show{display:block}.roomiq-app .backdrop{position:absolute;inset:0;background:#0009;backdrop-filter:blur(5px)}.roomiq-app .panel{position:absolute;right:0;top:0;bottom:0;width:min(440px,95vw);background:#08111e;border-left:1px solid #2a3b57;padding:24px;overflow:auto;box-shadow:-25px 0 70px #0007}.roomiq-app .close{float:right;border:1px solid var(--line);background:#0c1726;color:#dce7f5;border-radius:9px;width:34px;height:34px;cursor:pointer}.roomiq-app .panel h3{font-size:30px;margin:22px 0 5px}.roomiq-app .panel .muted{color:var(--muted)}.roomiq-app .bigStatus{padding:16px;border-radius:16px;margin:18px 0;background:#092520;border:1px solid #176252}.roomiq-app .bigStatus.busy{background:#29131b;border-color:#6b2940}.roomiq-app .bigStatus b{font-size:24px;display:block}.roomiq-app .count{font-size:44px;font-weight:900;letter-spacing:-.05em;margin-top:4px}.roomiq-app .claimBtn{width:100%;border:0;border-radius:13px;padding:14px;background:linear-gradient(135deg,var(--cyan),#6878ff);color:#041019;font-weight:900;cursor:pointer;margin-top:14px}.roomiq-app .shareBtn{width:100%;border:1px solid #25503f;border-radius:13px;padding:13px;background:#0c201b;color:#71efb9;font-weight:800;cursor:pointer;margin-top:9px}.roomiq-app .detail{display:grid;gap:9px;margin-top:18px}.roomiq-app .detail div{display:flex;justify-content:space-between;border-bottom:1px solid #1b2940;padding:9px 0}.roomiq-app .detail span{color:var(--muted)}
+.roomiq-app .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;z-index:100;background:#0c1828;border:1px solid #334862;color:#e8f2ff;padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);transition:.25s}.roomiq-app .toast.show{opacity:1;transform:translate(-50%,0)}
+.roomiq-app .footer{margin-top:55px;padding-top:20px;border-top:1px solid #17243a;color:#697c96;font-size:11px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:1050px){.roomiq-app .hero{grid-template-columns:1fr}.roomiq-app .grid{grid-template-columns:repeat(3,1fr)}.roomiq-app .floorPlane{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.roomiq-app .wrap{padding:18px 14px 50px}.roomiq-app .navlinks{display:none}.roomiq-app .hero h2{font-size:44px}.roomiq-app .grid{grid-template-columns:repeat(2,1fr)}.roomiq-app .floor{grid-template-columns:1fr}.roomiq-app .floorPlane{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.roomiq-app .grid{grid-template-columns:1fr}.roomiq-app .hero h2{font-size:39px}.roomiq-app .floorMini{grid-template-columns:repeat(2,1fr)}}
+
+
+.suitebar{position:sticky;top:0;z-index:1200;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:12px 22px;background:rgba(4,12,24,.94);backdrop-filter:blur(16px);border-bottom:1px solid #263c55;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.suiteTitle{font-weight:900;letter-spacing:.12em;color:#55e6ff}.suiteSub{font-size:12px;color:#8fa1ba;margin-top:2px}.suitebar nav{display:flex;gap:8px}.suitebar a{color:#dbe8f5;text-decoration:none;border:1px solid #2a4059;border-radius:10px;padding:8px 12px}.suitebar a:hover{border-color:#55e6ff;color:#55e6ff}
+#attendance-module{scroll-margin-top:80px;padding-bottom:25px}.roomiq-app{scroll-margin-top:80px;border-top:1px solid #1b3047;padding-top:25px}
+@media(max-width:650px){.suitebar{align-items:flex-start;flex-direction:column}.suitebar nav{width:100%}.suitebar a{flex:1;text-align:center}}
+
+</style>
+</head>
+<body>
+
+<header class="suitebar">
+  <div>
+    <div class="suiteTitle">CAMPUS INTELLIGENCE SUITE</div>
+    <div class="suiteSub">AttendSafe + ROOMIQ · unified single-file prototype</div>
+  </div>
+  <nav>
+    <a href="#attendance-module">Attendance</a>
+    <a href="#roomiq-module">Room Finder</a>
+  </nav>
+</header>
+
+<div id="attendance-module">
+<div class="wrap">
+<header class="top"><div class="brand"><div class="logo">AS</div><div><h1>AttendSafe</h1><p>Smart attendance planning • protect 75% • target 90%</p></div></div><div class="controls"><select id="section"></select>
+<label class="mini plan-control">Plan from
+  <button id="planDateBtn" type="button" class="datebtn" aria-haspopup="dialog" aria-expanded="false">
+    <span id="planDateBtnText">28 Sep 2026</span><span class="calicon">▣</span>
+  </button>
+  <input id="planDate" type="hidden" value="2026-09-28">
+</label>
+<button id="reset" class="ghost">Reset demo</button></div></header>
+<section class="hero"><h2>Know the consequence before you miss the class.</h2><p>Choose your section, enter current subject attendance, and select a future planning date. AttendSafe uses the supplied timetables and the semester window <b>29 Aug 2026 → 29 Nov 2026</b> to calculate scheduled classes left, recovery requirements, and whether recovery is mathematically possible.</p><div id="heroAlert"></div></section>
+<section class="grid4"><div class="card kpi"><small>Overall attendance</small><b id="overall">—</b><div class="bar"><div id="overallBar" class="fill"></div></div></div><div class="card kpi"><small>Classes held so far</small><b id="held">—</b></div><div class="card kpi"><small>Classes remaining</small><b id="remaining">—</b></div><div class="card kpi"><small>At-risk subjects</small><b id="risk">—</b></div></section>
+<section class="planner"><div class="card"><div class="mini">Planning date</div><div id="dateLabel" class="big">—</div></div><div class="card"><div class="mini">75% safety plan</div><div id="safeSummary" class="big">—</div></div><div class="card"><div class="mini">90% target plan</div><div id="targetSummary" class="big">—</div></div></section>
+<div class="main"><section class="card"><h2>Subject attendance</h2><div id="subjects"></div></section><aside><section class="card"><h2>What should I attend?</h2><div id="plans" class="plan"></div></section><section class="card" style="margin-top:15px"><h2>Upcoming timetable</h2><div id="upcoming" class="plan"></div></section></aside></div>
+<div class="two"><section class="card"><h2>Attendance health</h2><div id="chart" class="chart"></div><div class="mini">Green ≥90% • Yellow 75–89.9% • Red &lt;75%</div></section><section class="card"><h2>OD / Medical Leave Simulator</h2><p class="mini">Choose a leave duration starting from the planning date. AttendSafe counts the actual timetable classes falling inside that leave window and shows the projected semester outcome.</p><div class="controls"><label class="mini">Days <input id="leaveDays" type="number" min="0" max="30" value="0"></label><select id="leaveType"><option value="excluded">Approved OD/medical excluded from attendance</option><option value="attended">Approved OD/medical counted as attended</option><option value="absent">Leave treated as absent</option></select></div><div id="leaveResult" class="alert info">Enter leave days to simulate.</div></section></div>
+<div class="foot">AttendSafe • Unified Phase 1 + Phase 2 MVP • 10 supplied timetable files • Timetable-based projections</div></div>
+<button id="chatBtn" class="chatbtn">✦</button><div id="chat" class="chat"><div class="chathead"><b>Attendance Advisor</b><button id="close" class="ghost">×</button></div><div id="msgs" class="msgs"><div class="msg bot">Ask me about 75%, 90%, missed classes, a subject to prioritize, or a leave simulation.</div></div><div class="chatinput"><input id="chatInput" placeholder="e.g. Can I miss 3 classes?"><button id="send" class="primary">Send</button></div></div>
+
+<div id="calendarBackdrop" class="calendar-backdrop" aria-hidden="true">
+  <div id="calendarPop" class="calendar-pop" role="dialog" aria-label="Choose planning date">
+    <div class="cal-head">
+      <button id="calPrev" class="cal-nav" type="button" aria-label="Previous month">‹</button>
+      <div id="calTitle" class="cal-title"></div>
+      <button id="calNext" class="cal-nav" type="button" aria-label="Next month">›</button>
+    </div>
+    <div class="cal-week">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div id="calGrid" class="cal-grid"></div>
+    <div class="cal-help">Choose a planning date between 29 Aug and 29 Nov 2026.</div>
+  </div>
+</div>
+<script>
+const START='2026-08-29',END='2026-11-29';
+const PERIODS=['09:00–09:50','09:50–10:40','10:50–11:40','11:40–12:30','12:30–13:20','13:20–14:10','14:10–15:00','15:10–16:00','16:00–16:50'];
+const DATA={
+'II ECE-DS A':{subjects:{A:'Transforms and Boundary Value Problems',B:'Solid State Devices',C:'Computer Organization and Architecture',D:'Digital Logic Design',E:'Electromagnetic Theory and Interference',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering',LAB:'Devices and Digital IC Laboratory'},w:[['E','A','I','I','','','G','LAB','LAB'],['C','A','E','D','','','G','I','I'],['A','B','C','D','','','','',''],['B','C','A','F','','','LAB','',''],['D','B','E','C','','','','','']]},
+'III BME':{subjects:{A:'Probability and Statistics',B:'Microcontrollers and its Application in Medicine',C:'Biomedical Signal Processing',D:'Biometrics',E:'Modern wireless communication system',F:'Principles of Medical Imaging',G:'Analytical and Logical Thinking Skills',H:'Indian Art Form',I:'Community Connect',LAB:'MPMC/Bio DSP Laboratory'},w:[['G','G','LAB','LAB','','E','B','F','H'],['LAB','LAB','G','','','','C','D','A'],['','','','','','','C','A','F','D'],['','','','G','','','A','C','E','B'],['','LAB','','','','','F','A','D','E']]},
+'III ECE-A':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'System and Network on Chip',E:'Machine learning for all',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['E','B','B','A','','G','G','',''],['H','D','B','B','','','','',''],['C','A','D','F','','','','LAB','LAB'],['A','E','C','F','','','','',''],['D','A','E','C','','LAB','LAB','','']]},
+'III ECE-B':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'System and Network on Chip',E:'Machine learning for all',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['LAB','LAB','','','','E','B','A','D'],['G','','','','','F','B','D','C'],['G','','','','','B','B','A','H'],['LAB','','','','','A','C','E','F'],['','','','','','C','A','E','D']]},
+'III ECE-DS':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'Machine learning for all',E:'Database Design and Management',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['E','B','C','A','','','','',''],['C','B','D','F','','LAB','LAB','',''],['H','B','A','C','','','','G','G'],['A','D','E','F','','','','',''],['D','A','E','LAB','','G','G','LAB','LAB']]},
+'IV ECE-A':{subjects:{A:'Behavioural Psychology',B:'Wireless Communication and Antenna Systems',C:'Computer Communication and Network Security',D:'Semiconductor Memory Design',E:'Scripting Language for Electronic Design Automation',F:'Machine learning for all',LAB:'Computer Communication and Network Security Laboratory'},w:[['C','','A','D','','','','',''],['C','D','B','F','','','','',''],['B','LAB','E','F','','','','',''],['F','A','E','B','','','','',''],['C','A','D','E','','','','','']]},
+'IV ECE-B':{subjects:{A:'Behavioural Psychology',B:'Wireless Communication and Antenna Systems',C:'Computer Communication and Network Security',D:'Semiconductor Memory Design',E:'Scripting Language for Electronic Design Automation',F:'Machine learning for all',LAB:'Computer Communication and Network Security Laboratory'},w:[['C','A','E','F','','','','',''],['C','E','F','B','','','','',''],['C','D','A','B','','','','',''],['D','B','LAB','A','','','','',''],['E','D','F','','','','','','']]},
+'II ECE-DS B':{subjects:{A:'Transforms and Boundary Value Problems',B:'Solid State Devices',C:'Computer Organization and Architecture',D:'Digital Logic Design',E:'Electromagnetic Theory and Interference',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering',LAB:'Devices and Digital IC Laboratory'},w:[['','','LAB','LAB','','D','B','C','I'],['LAB','LAB','','','','C','D','E','A'],['G','','','','','I','E','A','D'],['G','G','LAB','LAB','','A','C','B','E'],['LAB','','','','','F','A','B','C']]},
+'II BME':{subjects:{A:'Transforms and Boundary Value Problems',B:'Biomedical Signals and Systems',C:'Electric and Electronic Circuits',D:'Digital Logic for Medical Systems',E:'Medical Physics',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering'},w:[['E','C','I','I','','','LAB','',''],['C','E','B','A','','','H','',''],['B','D','A','','','','H','G',''],['A','E','B','D','','','','H','I'],['F','A','C','D','','','','G','']]},
+'I ECE-A (source 2024-25)':{subjects:{A:'Advanced Calculus and Complex Analysis',B:'Physical Chemistry',C:'Electronic System and PCB Design',D:'Programming for Problem Solving',E:'Philosophy of Engineering',F:'Biology',G:'General Aptitude',H:'German',LAB:'PPS/Che Lab/Workshop'},w:[['E','E','B','A','','LAB','LAB','F','G'],['C','B','A','D','','LAB','LAB','',''],['B','E','D','','','LAB','LAB','LAB','LAB'],['','H','','A','','G','G','H','H'],['D','A','C','B','','H','H','H','H']]}
+};
+const $=x=>document.getElementById(x),secs=$('section');
+Object.keys(DATA).forEach(k=>secs.add(new Option(k,k)));
+const iso=d=>{const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}, dt=s=>{let[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+function count(section,slot,a,b){let n=0,w=DATA[section].w;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)){let wd=d.getDay();if(wd>=1&&wd<=5)n+=w[wd-1].filter(x=>x===slot).length}return n}
+function remain(section,slot,from){let end=dt(END);return count(section,slot,from,end)}
+function pct(a,b){return a+b?100*a/(a+b):100}
+function need(a,b,targetPct){const total=a+b; if(total<=0)return 0; const current=a/total*100; const target=Number(targetPct)/100; if(current+1e-9>=Number(targetPct))return 0; return Math.max(0,Math.ceil(((target*total)-a)/(1-target)-1e-9));}
+let store=JSON.parse(localStorage.getItem('attendsafe-unified')||'{}');
+function getVals(sec){store[sec]=store[sec]||{};for(const slot in DATA[sec].subjects)store[sec][slot]??={a:10,b:2};return store[sec]}
+function render(){
+ let sec=secs.value, vals=getVals(sec), today=new Date(), pd=$('planDate').value||iso(today);
+ if(pd<START)pd=START;if(pd>END)pd=END;$('planDate').value=pd;
+ $('planDateBtnText').textContent=dt(pd).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+ let from=dt(pd);
+ let rows=[],A=0,B=0,R=0;
+ for(const [slot,name] of Object.entries(DATA[sec].subjects)){let v=vals[slot],a=+v.a||0,b=+v.b||0,r=remain(sec,slot,from),p=pct(a,b),n75=need(a,b,75),n90=need(a,b,90),max75=(a+r)/(a+b+r)*100,max90=max75;rows.push({slot,name,a,b,r,p,n75,n90,max75,max90});A+=a;B+=b;R+=r}
+ let op=pct(A,B),n75=need(A,B,75),n90=need(A,B,90),max=(A+R)/(A+B+R)*100;
+ $('overall').textContent=op.toFixed(1)+'%';$('overall').className=op>=90?'green':op>=75?'yellow':'red';$('overallBar').style.width=Math.min(100,op)+'%';$('overallBar').style.background=op>=90?'var(--g)':op>=75?'var(--y)':'var(--r)';
+ $('held').textContent=A+B;$('remaining').textContent=R;$('risk').textContent=rows.filter(r=>r.p<75||r.n75>r.r).length;
+ $('dateLabel').textContent=from.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+ $('safeSummary').textContent=op>=75?'Safe now':n75<=R?'Attend '+n75:'Cannot recover';
+ $('targetSummary').textContent=op>=90?'Already ≥90%':n90<=R?'Attend '+n90:'Max '+max.toFixed(1)+'%';
+ let msg,cl;if(op<75||rows.some(r=>r.p<75&&r.n75>r.r)){cl='danger';msg='⚠️ IRREVERSIBLE DETENTION — at least one current subject cannot reach 75% by 29 Nov 2026 even if every remaining class is attended.'}else if(op<90){cl='warn';msg='You are above 75% but below the 90% target. Follow the subject recovery plan and avoid unnecessary absences.'}else{cl='safe';msg='You are at/above 90%. AttendSafe shows exactly how much attendance room you have.'}$('heroAlert').innerHTML=`<div class="alert ${cl}">${msg}</div>`;
+ $('subjects').innerHTML=rows.map(r=>`<div class="subject"><div class="row"><div><div class="sname">${r.name}</div><div class="mini">Slot ${r.slot} • ${r.a+r.b} held • ${r.r} remaining</div><div class="bar"><div class="fill" style="width:${Math.min(100,r.p)}%;background:${r.p>=90?'var(--g)':r.p>=75?'var(--y)':'var(--r)'}"></div></div></div><div class="field"><label>Attended</label><input data-s="${r.slot}" data-k="a" type="number" min="0" value="${r.a}"></div><div class="field"><label>Absent</label><input data-s="${r.slot}" data-k="b" type="number" min="0" value="${r.b}"></div><div><div class="mini">Now</div><b class="${r.p>=90?'green':r.p>=75?'yellow':'red'}">${r.p.toFixed(1)}%</b><div class="mini">90% plan</div><b>${r.p>=90?'Already ≥90%':r.n90<=r.r?'Attend '+r.n90:`Unreachable • max ${r.max90.toFixed(1)}%`}</b></div></div></div>`).join('');
+ document.querySelectorAll('#subjects input').forEach(i=>i.oninput=()=>{vals[i.dataset.s][i.dataset.k]=Math.max(0,+i.value||0);store[sec]=vals;localStorage.setItem('attendsafe-unified',JSON.stringify(store));render()});
+ $('plans').innerHTML=rows.filter(r=>r.p<90).sort((a,b)=>a.p-b.p).slice(0,7).map(r=>{let t=r.p<75?(r.n75<=r.r?'Attend '+r.n75+' to recover to 75%':'IRREVERSIBLE DETENTION'):(r.p>=90?'Already at/above 90%':r.n90<=r.r?'Attend '+r.n90+' straight to reach 90%':'90% unreachable • max '+r.max90.toFixed(1)+'%');return `<div class="planitem"><b>${r.name}</b><div class="mini">${r.p.toFixed(1)}% now • ${r.r} classes left</div><span class="pill ${t.includes('IRREVERSIBLE')||t.includes('unreachable')?'dp':''}">${t}</span></div>`}).join('')||'<div class="planitem">No immediate recovery action.</div>';
+ let upcoming=[],d=new Date(from);for(let day=0;day<30&&upcoming.length<7;day++,d.setDate(d.getDate()+1)){let wd=d.getDay();if(wd<1||wd>5)continue;DATA[sec].w[wd-1].forEach((slot,i)=>{if(slot&&upcoming.length<7)upcoming.push(`<div class="planitem"><b>${DATA[sec].subjects[slot]||slot}</b><div class="mini">${d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'})} • P${i+1} • ${PERIODS[i]}</div></div>`)})}$('upcoming').innerHTML=upcoming.join('');
+ $('chart').innerHTML=rows.map(r=>`<div class="bc"><div class="bl">${r.p.toFixed(0)}%</div><div class="br" style="height:${Math.max(5,r.p*1.45)}px;background:${r.p>=90?'linear-gradient(#37e39b,#20a876)':r.p>=75?'linear-gradient(#ffc83d,#d58f13)':'linear-gradient(#ff5e7a,#c32f50)'}"></div><div class="bl">${r.name.split(' ').slice(0,2).join(' ')}</div></div>`).join('');
+ window.ctx={sec,from,rows,A,B,R,op,n75,n90,max};simulateLeave(); 
+}
+function leaveClasses(sec,start,days){let n=0,end=new Date(start);end.setDate(end.getDate()+days-1);for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){let w=d.getDay();if(w>=1&&w<=5)n+=DATA[sec].w[w-1].filter(Boolean).length}return n}
+function simulateLeave(){let days=+$('leaveDays').value||0;if(!days){$('leaveResult').textContent='Enter leave days to simulate.';return}let c=leaveClasses(window.ctx.sec,window.ctx.from,days),total=window.ctx.A+window.ctx.B,remaining=window.ctx.R,att=window.ctx.A,mode=$('leaveType').value;let projected;if(mode==='excluded')projected=(att+(remaining-c))/(total+remaining-c);else projected=(att+(mode==='attended'?c:0)+(remaining-c))/(total+remaining);let p=projected*100;$('leaveResult').textContent=`${c} timetable classes fall inside the ${days}-day leave window. Projected semester attendance: ${p.toFixed(1)}%. ${p<75?'⚠️ Below 75% — detention risk.':p<90?'Above 75%, but below 90%.':'At/above 90%.'}`}
+function advisor(q){
+ let c=window.ctx,t=q.toLowerCase(),m=q.match(/(\d+)\s*(?:class|classes)/),n=m?+m[1]:null;
+ const subject=c.rows.find(r=>t.includes(r.name.toLowerCase()));
+ const row=subject||c.rows.slice().sort((a,b)=>a.p-b.p)[0];
+ if(t.includes('90')){
+   if(subject){return subject.n90<=subject.r?`${subject.name} is ${subject.p.toFixed(1)}% now. Attend ${subject.n90} more classes consecutively to reach 90%.`:`90% is unreachable for ${subject.name} from the current numbers. Even attending every remaining class would reach only ${subject.max90.toFixed(1)}%.`;}
+   return c.n90<=c.R?`Overall attendance is ${c.op.toFixed(1)}%. Attend ${c.n90} remaining classes with no further absences to reach 90%.`:`90% is unreachable overall; the maximum possible attendance is ${c.max.toFixed(1)}%.`;
+ }
+ if(t.includes('75')||t.includes('detention')||t.includes('danger')){
+   if(subject){return subject.n75<=subject.r?`${subject.name} is ${subject.p.toFixed(1)}% now. Attend at least ${subject.n75} remaining classes to reach 75%.`:`⚠️ ${subject.name} cannot recover to 75% this semester. Maximum possible attendance is ${subject.max75.toFixed(1)}%.`;}
+   return c.n75<=c.R?`Overall attendance is ${c.op.toFixed(1)}%. You need ${c.n75} more attended classes to reach 75%.`:`⚠️ Recovery to 75% is mathematically impossible with the remaining ${c.R} scheduled classes.`;
+ }
+ if(n&&/(miss|skip|absent)/.test(t)){
+   if(subject){const p=subject.a/(subject.a+subject.b+n)*100;return `If you miss ${n} more ${subject.name} classes, the subject would be about ${p.toFixed(1)}%. ${p<75?'That would be below 75%.':p<90?'You would remain above 75% but below 90%.':'You would remain at/above 90%.'}`;}
+   const p=c.A/(c.A+c.B+n)*100;return `If you miss ${n} more classes overall, a simple projection is ${p.toFixed(1)}%. ${p<75?'That would be below 75%.':p<90?'You would remain above 75% but below 90%.':'You would remain at/above 90%.'}`;
+ }
+ if(/leave|sick|medical|od/.test(t)){
+   const dm=t.match(/(\d+)\s*(?:day|days)/); if(dm){const days=+dm[1],lc=leaveClasses(c.sec,c.from,days);return `${lc} timetable classes fall inside a ${days}-day leave window starting on the planning date. If those classes are not counted as attendance, the projected semester attendance is ${((c.A+(c.R-lc))/(c.A+c.B+c.R)*100).toFixed(1)}%.`;}
+ }
+ return `Prioritize ${row.name} at ${row.p.toFixed(1)}%. ${row.p<75?(row.n75<=row.r?'Attend '+row.n75+' next to recover to 75%.':'It cannot recover to 75% this semester.'):(row.n90<=row.r?'Attend '+row.n90+' straight to reach 90%.':'90% is unreachable; max '+row.max90.toFixed(1)+'%.')}`;
+}
+$('chatBtn').onclick=()=>{$('chat').classList.toggle('open')};$('close').onclick=()=>{$('chat').classList.remove('open')};function send(){let q=$('chatInput').value.trim();if(!q)return;$('msgs').insertAdjacentHTML('beforeend',`<div class="msg usr">${q.replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x]))}</div><div class="msg bot">${advisor(q)}</div>`);$('chatInput').value='';$('msgs').scrollTop=$('msgs').scrollHeight}$('send').onclick=send;$('chatInput').onkeydown=e=>{if(e.key==='Enter')send()};
+// Reactive controls + reliable custom planning-date calendar.
+const calBack=$('calendarBackdrop'), calPop=$('calendarPop'), calGrid=$('calGrid'), calTitle=$('calTitle');
+const calPrev=$('calPrev'), calNext=$('calNext'), planBtn=$('planDateBtn');
+const SEM_START=dt(START), SEM_END=dt(END);
+let calView=new Date(SEM_START.getFullYear(),SEM_START.getMonth(),1);
+
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function openCalendar(){
+  const cur=dt($('planDate').value||START);
+  calView=new Date(cur.getFullYear(),cur.getMonth(),1);
+  renderCalendar();
+  calBack.classList.add('open');
+  calBack.setAttribute('aria-hidden','false');
+  planBtn.setAttribute('aria-expanded','true');
+}
+function closeCalendar(){
+  calBack.classList.remove('open');
+  calBack.setAttribute('aria-hidden','true');
+  planBtn.setAttribute('aria-expanded','false');
+}
+function renderCalendar(){
+  const y=calView.getFullYear(), m=calView.getMonth();
+  calTitle.textContent=calView.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  calPrev.disabled=(y===SEM_START.getFullYear() && m===SEM_START.getMonth());
+  calNext.disabled=(y===SEM_END.getFullYear() && m===SEM_END.getMonth());
+  calGrid.innerHTML='';
+  const first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+  const selected=dt($('planDate').value||START);
+  for(let i=0;i<42;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const b=document.createElement('button');
+    b.type='button'; b.className='cal-day'; b.textContent=d.getDate();
+    const inMonth=d.getMonth()===m;
+    const inRange=d>=SEM_START&&d<=SEM_END;
+    if(!inMonth)b.classList.add('muted');
+    if(sameDay(d,selected))b.classList.add('selected');
+    if(!inRange){b.disabled=true;}
+    else{
+      b.addEventListener('click',()=>{
+        const value=iso(d);
+        $('planDate').value=value;
+        render();
+        closeCalendar();
+      });
+    }
+    calGrid.appendChild(b);
+  }
+}
+planBtn.addEventListener('click',e=>{e.stopPropagation(); if(calBack.classList.contains('open'))closeCalendar();else openCalendar();});
+calPrev.addEventListener('click',()=>{if(!calPrev.disabled){calView.setMonth(calView.getMonth()-1);renderCalendar();}});
+calNext.addEventListener('click',()=>{if(!calNext.disabled){calView.setMonth(calView.getMonth()+1);renderCalendar();}});
+calBack.addEventListener('click',e=>{if(e.target===calBack)closeCalendar();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCalendar();});
+
+$('section').addEventListener('change',render);
+$('leaveDays').addEventListener('input',simulateLeave);
+$('leaveType').addEventListener('change',simulateLeave);
+
+$('reset').onclick=()=>{
+  localStorage.removeItem('attendsafe-unified');
+  $('planDate').value=iso(new Date());
+  if($('planDate').value<START)$('planDate').value=START;
+  if($('planDate').value>END)$('planDate').value=END;
+  $('section').value=Object.keys(DATA)[0];
+  closeCalendar();
+  render();
+};
+
+$('planDate').value=iso(new Date());
+if($('planDate').value<START)$('planDate').value=START;
+if($('planDate').value>END)$('planDate').value=END;
+render();
+</script>
+</div>
+<div id="roomiq-module" class="roomiq-app">
+<div class="wrap">
+<header class="nav">
+  <div class="brand"><div class="logo">R</div><div><h1>ROOMIQ</h1><small>Smart Floor Manager · SRM Trichy</small></div></div>
+  <nav class="navlinks"><a href="#finder">AI Finder</a><a href="#floors">Floor Grid</a><a href="#map">3D Map</a></nav>
+</header>
+
+<section class="hero" id="finder">
+ <div>
+  <div class="eyebrow">Find a room. Don't find a classroom.</div>
+  <h2>Turn <span>empty space</span> into your next workspace.</h2>
+  <p>Search the supplied SRM timetables in plain English. ROOMIQ translates your request into floor, duration and room constraints, then checks timetable occupancy before showing the rooms you can actually use.</p>
+  <div class="heroStats">
+   <div class="stat"><b id="sectionCount">13</b><span>timetable sections</span></div>
+   <div class="stat"><b id="roomCount">0</b><span>mapped spaces</span></div>
+   <div class="stat"><b id="liveClock">--:--</b><span>live campus time</span></div>
+  </div>
+  <div class="searchWrap">
+   <input id="query" class="search" placeholder='Try: "I need a room on the 5th floor for the next 2 hours"'>
+   <button class="searchBtn" onclick="runAI()">⌕</button>
+  </div>
+  <div class="chips">
+   <button class="chip" onclick="demo('Show me free rooms right now')">Free right now</button>
+   <button class="chip" onclick="demo('I need a room on the 5th floor for 2 hours')">5th floor · 2 hours</button>
+   <button class="chip" onclick="demo('Find a room for my team for the next 1 hour')">Team · 1 hour</button>
+   <button class="chip" onclick="demo('Ground floor room for 2 hours')">Ground floor</button>
+  </div>
+  <div id="aiResult" class="aiResult"></div>
+ </div>
+ <div class="heroCard">
+  <div class="scan"><span>LIVE BUILDING SCAN</span><span class="pulse">● SYNCED</span></div>
+  <div class="floorMini" id="miniRooms"></div>
+ </div>
+</section>
+
+<section class="section" id="floors">
+ <div class="sectionHead"><div><h3>Live Floor Grid</h3><p>Every mapped room is evaluated against the timetable at the current time.</p></div><div class="filters"><select id="daySel" class="select"></select><select id="timeSel" class="select"></select></div></div>
+ <div class="floorTabs" id="floorTabs"></div>
+ <div class="grid" id="roomGrid"></div>
+</section>
+
+<section class="section" id="map">
+ <div class="sectionHead"><div><h3>Interactive Building Map</h3><p>A lightweight 3D-style building model. Tap a room for live occupancy and countdown.</p></div></div>
+ <div class="map"><div class="building" id="building"></div>
+ <div class="legend"><span><i class="a"></i> Available</span><span><i class="b"></i> Occupied</span><span><i class="c"></i> Claimed by you</span></div></div>
+</section>
+
+<footer class="footer"><span>ROOMIQ · Built from the 10 uploaded timetable PDFs</span><span>Timetable source data is used as supplied; room AC status is configurable because it is not stated in the PDFs.</span></footer>
+</div>
+
+<div class="drawer" id="drawer"><div class="backdrop" onclick="closeDrawer()"></div><aside class="panel">
+ <button class="close" onclick="closeDrawer()">×</button><div class="eyebrow">ROOM INTELLIGENCE</div><h3 id="dRoom">IST 518</h3><div class="muted" id="dFloor">5th floor</div>
+ <div class="bigStatus" id="dStatus"><b id="dStatusText">AVAILABLE</b><div class="count" id="dCount">--:--:--</div><small id="dSub">free until next scheduled class</small></div>
+ <button class="claimBtn" id="claimBtn" onclick="claimRoom()">Claim this room</button>
+ <button class="shareBtn" onclick="shareRoom()">↗ Call the Squad on WhatsApp</button>
+ <div class="detail"><div><span>Room type</span><b id="dType">Classroom</b></div><div><span>Floor</span><b id="dFloor2">5</b></div><div><span>Next class</span><b id="dNext">—</b></div><div><span>Source</span><b id="dSource">Supplied timetable</b></div></div>
+ <p class="muted" style="margin-top:18px;font-size:12px">Countdowns are calculated from the timetable periods. A blank timetable cell means the section is not scheduled in its home room for that period.</p>
+</aside></div>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+
+const START='2026-08-29',END='2026-11-29';
+const PERIODS=['09:00–09:50','09:50–10:40','10:50–11:40','11:40–12:30','12:30–13:20','13:20–14:10','14:10–15:00','15:10–16:00','16:00–16:50'];
+const DATA={
+'II ECE-DS A':{subjects:{A:'Transforms and Boundary Value Problems',B:'Solid State Devices',C:'Computer Organization and Architecture',D:'Digital Logic Design',E:'Electromagnetic Theory and Interference',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering',LAB:'Devices and Digital IC Laboratory'},w:[['E','A','I','I','','','G','LAB','LAB'],['C','A','E','D','','','G','I','I'],['A','B','C','D','','','','',''],['B','C','A','F','','','LAB','',''],['D','B','E','C','','','','','']]},
+'III BME':{subjects:{A:'Probability and Statistics',B:'Microcontrollers and its Application in Medicine',C:'Biomedical Signal Processing',D:'Biometrics',E:'Modern wireless communication system',F:'Principles of Medical Imaging',G:'Analytical and Logical Thinking Skills',H:'Indian Art Form',I:'Community Connect',LAB:'MPMC/Bio DSP Laboratory'},w:[['G','G','LAB','LAB','','E','B','F','H'],['LAB','LAB','G','','','','C','D','A'],['','','','','','','C','A','F','D'],['','','','G','','','A','C','E','B'],['','LAB','','','','','F','A','D','E']]},
+'III ECE-A':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'System and Network on Chip',E:'Machine learning for all',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['E','B','B','A','','G','G','',''],['H','D','B','B','','','','',''],['C','A','D','F','','','','LAB','LAB'],['A','E','C','F','','','','',''],['D','A','E','C','','LAB','LAB','','']]},
+'III ECE-B':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'System and Network on Chip',E:'Machine learning for all',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['LAB','LAB','','','','E','B','A','D'],['G','','','','','F','B','D','C'],['G','','','','','B','B','A','H'],['LAB','','','','','A','C','E','F'],['','','','','','C','A','E','D']]},
+'III ECE-DS':{subjects:{A:'Discrete Mathematics',B:'Microprocessor, Microcontroller, and Interfacing Techniques',C:'VLSI Design and Technology',D:'Machine learning for all',E:'Database Design and Management',F:'Community connect',G:'Analytical and logical thinking skills',H:'Indian Art Form',LAB:'VLSI Design/Microprocessor Laboratory'},w:[['E','B','C','A','','','','',''],['C','B','D','F','','LAB','LAB','',''],['H','B','A','C','','','','G','G'],['A','D','E','F','','','','',''],['D','A','E','LAB','','G','G','LAB','LAB']]},
+'IV ECE-A':{subjects:{A:'Behavioural Psychology',B:'Wireless Communication and Antenna Systems',C:'Computer Communication and Network Security',D:'Semiconductor Memory Design',E:'Scripting Language for Electronic Design Automation',F:'Machine learning for all',LAB:'Computer Communication and Network Security Laboratory'},w:[['C','','A','D','','','','',''],['C','D','B','F','','','','',''],['B','LAB','E','F','','','','',''],['F','A','E','B','','','','',''],['C','A','D','E','','','','','']]},
+'IV ECE-B':{subjects:{A:'Behavioural Psychology',B:'Wireless Communication and Antenna Systems',C:'Computer Communication and Network Security',D:'Semiconductor Memory Design',E:'Scripting Language for Electronic Design Automation',F:'Machine learning for all',LAB:'Computer Communication and Network Security Laboratory'},w:[['C','A','E','F','','','','',''],['C','E','F','B','','','','',''],['C','D','A','B','','','','',''],['D','B','LAB','A','','','','',''],['E','D','F','','','','','','']]},
+'II ECE-DS B':{subjects:{A:'Transforms and Boundary Value Problems',B:'Solid State Devices',C:'Computer Organization and Architecture',D:'Digital Logic Design',E:'Electromagnetic Theory and Interference',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering',LAB:'Devices and Digital IC Laboratory'},w:[['','','LAB','LAB','','D','B','C','I'],['LAB','LAB','','','','C','D','E','A'],['G','','','','','I','E','A','D'],['G','G','LAB','LAB','','A','C','B','E'],['LAB','','','','','F','A','B','C']]},
+'II BME':{subjects:{A:'Transforms and Boundary Value Problems',B:'Biomedical Signals and Systems',C:'Electric and Electronic Circuits',D:'Digital Logic for Medical Systems',E:'Medical Physics',F:'Professional Ethics',G:'Universal Human Values-II',H:'Verbal Reasoning',I:'Social Engineering'},w:[['E','C','I','I','','','LAB','',''],['C','E','B','A','','','H','',''],['B','D','A','','','','H','G',''],['A','E','B','D','','','','H','I'],['F','A','C','D','','','','G','']]},
+'I ECE-A (source 2024-25)':{subjects:{A:'Advanced Calculus and Complex Analysis',B:'Physical Chemistry',C:'Electronic System and PCB Design',D:'Programming for Problem Solving',E:'Philosophy of Engineering',F:'Biology',G:'General Aptitude',H:'German',LAB:'PPS/Che Lab/Workshop'},w:[['E','E','B','A','','LAB','LAB','F','G'],['C','B','A','D','','LAB','LAB','',''],['B','E','D','','','LAB','LAB','LAB','LAB'],['','H','','A','','G','G','H','H'],['D','A','C','B','','H','H','H','H']]}
+};
+const $=x=>document.getElementById(x),secs=$('section');
+Object.keys(DATA).forEach(k=>secs.add(new Option(k,k)));
+const iso=d=>{const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}, dt=s=>{let[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+function count(section,slot,a,b){let n=0,w=DATA[section].w;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)){let wd=d.getDay();if(wd>=1&&wd<=5)n+=w[wd-1].filter(x=>x===slot).length}return n}
+function remain(section,slot,from){let end=dt(END);return count(section,slot,from,end)}
+function pct(a,b){return a+b?100*a/(a+b):100}
+function need(a,b,targetPct){const total=a+b; if(total<=0)return 0; const current=a/total*100; const target=Number(targetPct)/100; if(current+1e-9>=Number(targetPct))return 0; return Math.max(0,Math.ceil(((target*total)-a)/(1-target)-1e-9));}
+let store=JSON.parse(localStorage.getItem('attendsafe-unified')||'{}');
+function getVals(sec){store[sec]=store[sec]||{};for(const slot in DATA[sec].subjects)store[sec][slot]??={a:10,b:2};return store[sec]}
+function render(){
+ let sec=secs.value, vals=getVals(sec), today=new Date(), pd=$('planDate').value||iso(today);
+ if(pd<START)pd=START;if(pd>END)pd=END;$('planDate').value=pd;
+ $('planDateBtnText').textContent=dt(pd).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+ let from=dt(pd);
+ let rows=[],A=0,B=0,R=0;
+ for(const [slot,name] of Object.entries(DATA[sec].subjects)){let v=vals[slot],a=+v.a||0,b=+v.b||0,r=remain(sec,slot,from),p=pct(a,b),n75=need(a,b,75),n90=need(a,b,90),max75=(a+r)/(a+b+r)*100,max90=max75;rows.push({slot,name,a,b,r,p,n75,n90,max75,max90});A+=a;B+=b;R+=r}
+ let op=pct(A,B),n75=need(A,B,75),n90=need(A,B,90),max=(A+R)/(A+B+R)*100;
+ $('overall').textContent=op.toFixed(1)+'%';$('overall').className=op>=90?'green':op>=75?'yellow':'red';$('overallBar').style.width=Math.min(100,op)+'%';$('overallBar').style.background=op>=90?'var(--g)':op>=75?'var(--y)':'var(--r)';
+ $('held').textContent=A+B;$('remaining').textContent=R;$('risk').textContent=rows.filter(r=>r.p<75||r.n75>r.r).length;
+ $('dateLabel').textContent=from.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+ $('safeSummary').textContent=op>=75?'Safe now':n75<=R?'Attend '+n75:'Cannot recover';
+ $('targetSummary').textContent=op>=90?'Already ≥90%':n90<=R?'Attend '+n90:'Max '+max.toFixed(1)+'%';
+ let msg,cl;if(op<75||rows.some(r=>r.p<75&&r.n75>r.r)){cl='danger';msg='⚠️ IRREVERSIBLE DETENTION — at least one current subject cannot reach 75% by 29 Nov 2026 even if every remaining class is attended.'}else if(op<90){cl='warn';msg='You are above 75% but below the 90% target. Follow the subject recovery plan and avoid unnecessary absences.'}else{cl='safe';msg='You are at/above 90%. AttendSafe shows exactly how much attendance room you have.'}$('heroAlert').innerHTML=`<div class="alert ${cl}">${msg}</div>`;
+ $('subjects').innerHTML=rows.map(r=>`<div class="subject"><div class="row"><div><div class="sname">${r.name}</div><div class="mini">Slot ${r.slot} • ${r.a+r.b} held • ${r.r} remaining</div><div class="bar"><div class="fill" style="width:${Math.min(100,r.p)}%;background:${r.p>=90?'var(--g)':r.p>=75?'var(--y)':'var(--r)'}"></div></div></div><div class="field"><label>Attended</label><input data-s="${r.slot}" data-k="a" type="number" min="0" value="${r.a}"></div><div class="field"><label>Absent</label><input data-s="${r.slot}" data-k="b" type="number" min="0" value="${r.b}"></div><div><div class="mini">Now</div><b class="${r.p>=90?'green':r.p>=75?'yellow':'red'}">${r.p.toFixed(1)}%</b><div class="mini">90% plan</div><b>${r.p>=90?'Already ≥90%':r.n90<=r.r?'Attend '+r.n90:`Unreachable • max ${r.max90.toFixed(1)}%`}</b></div></div></div>`).join('');
+ document.querySelectorAll('#subjects input').forEach(i=>i.oninput=()=>{vals[i.dataset.s][i.dataset.k]=Math.max(0,+i.value||0);store[sec]=vals;localStorage.setItem('attendsafe-unified',JSON.stringify(store));render()});
+ $('plans').innerHTML=rows.filter(r=>r.p<90).sort((a,b)=>a.p-b.p).slice(0,7).map(r=>{let t=r.p<75?(r.n75<=r.r?'Attend '+r.n75+' to recover to 75%':'IRREVERSIBLE DETENTION'):(r.p>=90?'Already at/above 90%':r.n90<=r.r?'Attend '+r.n90+' straight to reach 90%':'90% unreachable • max '+r.max90.toFixed(1)+'%');return `<div class="planitem"><b>${r.name}</b><div class="mini">${r.p.toFixed(1)}% now • ${r.r} classes left</div><span class="pill ${t.includes('IRREVERSIBLE')||t.includes('unreachable')?'dp':''}">${t}</span></div>`}).join('')||'<div class="planitem">No immediate recovery action.</div>';
+ let upcoming=[],d=new Date(from);for(let day=0;day<30&&upcoming.length<7;day++,d.setDate(d.getDate()+1)){let wd=d.getDay();if(wd<1||wd>5)continue;DATA[sec].w[wd-1].forEach((slot,i)=>{if(slot&&upcoming.length<7)upcoming.push(`<div class="planitem"><b>${DATA[sec].subjects[slot]||slot}</b><div class="mini">${d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'})} • P${i+1} • ${PERIODS[i]}</div></div>`)})}$('upcoming').innerHTML=upcoming.join('');
+ $('chart').innerHTML=rows.map(r=>`<div class="bc"><div class="bl">${r.p.toFixed(0)}%</div><div class="br" style="height:${Math.max(5,r.p*1.45)}px;background:${r.p>=90?'linear-gradient(#37e39b,#20a876)':r.p>=75?'linear-gradient(#ffc83d,#d58f13)':'linear-gradient(#ff5e7a,#c32f50)'}"></div><div class="bl">${r.name.split(' ').slice(0,2).join(' ')}</div></div>`).join('');
+ window.ctx={sec,from,rows,A,B,R,op,n75,n90,max};simulateLeave(); 
+}
+function leaveClasses(sec,start,days){let n=0,end=new Date(start);end.setDate(end.getDate()+days-1);for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){let w=d.getDay();if(w>=1&&w<=5)n+=DATA[sec].w[w-1].filter(Boolean).length}return n}
+function simulateLeave(){let days=+$('leaveDays').value||0;if(!days){$('leaveResult').textContent='Enter leave days to simulate.';return}let c=leaveClasses(window.ctx.sec,window.ctx.from,days),total=window.ctx.A+window.ctx.B,remaining=window.ctx.R,att=window.ctx.A,mode=$('leaveType').value;let projected;if(mode==='excluded')projected=(att+(remaining-c))/(total+remaining-c);else projected=(att+(mode==='attended'?c:0)+(remaining-c))/(total+remaining);let p=projected*100;$('leaveResult').textContent=`${c} timetable classes fall inside the ${days}-day leave window. Projected semester attendance: ${p.toFixed(1)}%. ${p<75?'⚠️ Below 75% — detention risk.':p<90?'Above 75%, but below 90%.':'At/above 90%.'}`}
+function advisor(q){
+ let c=window.ctx,t=q.toLowerCase(),m=q.match(/(\d+)\s*(?:class|classes)/),n=m?+m[1]:null;
+ const subject=c.rows.find(r=>t.includes(r.name.toLowerCase()));
+ const row=subject||c.rows.slice().sort((a,b)=>a.p-b.p)[0];
+ if(t.includes('90')){
+   if(subject){return subject.n90<=subject.r?`${subject.name} is ${subject.p.toFixed(1)}% now. Attend ${subject.n90} more classes consecutively to reach 90%.`:`90% is unreachable for ${subject.name} from the current numbers. Even attending every remaining class would reach only ${subject.max90.toFixed(1)}%.`;}
+   return c.n90<=c.R?`Overall attendance is ${c.op.toFixed(1)}%. Attend ${c.n90} remaining classes with no further absences to reach 90%.`:`90% is unreachable overall; the maximum possible attendance is ${c.max.toFixed(1)}%.`;
+ }
+ if(t.includes('75')||t.includes('detention')||t.includes('danger')){
+   if(subject){return subject.n75<=subject.r?`${subject.name} is ${subject.p.toFixed(1)}% now. Attend at least ${subject.n75} remaining classes to reach 75%.`:`⚠️ ${subject.name} cannot recover to 75% this semester. Maximum possible attendance is ${subject.max75.toFixed(1)}%.`;}
+   return c.n75<=c.R?`Overall attendance is ${c.op.toFixed(1)}%. You need ${c.n75} more attended classes to reach 75%.`:`⚠️ Recovery to 75% is mathematically impossible with the remaining ${c.R} scheduled classes.`;
+ }
+ if(n&&/(miss|skip|absent)/.test(t)){
+   if(subject){const p=subject.a/(subject.a+subject.b+n)*100;return `If you miss ${n} more ${subject.name} classes, the subject would be about ${p.toFixed(1)}%. ${p<75?'That would be below 75%.':p<90?'You would remain above 75% but below 90%.':'You would remain at/above 90%.'}`;}
+   const p=c.A/(c.A+c.B+n)*100;return `If you miss ${n} more classes overall, a simple projection is ${p.toFixed(1)}%. ${p<75?'That would be below 75%.':p<90?'You would remain above 75% but below 90%.':'You would remain at/above 90%.'}`;
+ }
+ if(/leave|sick|medical|od/.test(t)){
+   const dm=t.match(/(\d+)\s*(?:day|days)/); if(dm){const days=+dm[1],lc=leaveClasses(c.sec,c.from,days);return `${lc} timetable classes fall inside a ${days}-day leave window starting on the planning date. If those classes are not counted as attendance, the projected semester attendance is ${((c.A+(c.R-lc))/(c.A+c.B+c.R)*100).toFixed(1)}%.`;}
+ }
+ return `Prioritize ${row.name} at ${row.p.toFixed(1)}%. ${row.p<75?(row.n75<=row.r?'Attend '+row.n75+' next to recover to 75%.':'It cannot recover to 75% this semester.'):(row.n90<=row.r?'Attend '+row.n90+' straight to reach 90%.':'90% is unreachable; max '+row.max90.toFixed(1)+'%.')}`;
+}
+$('chatBtn').onclick=()=>{$('chat').classList.toggle('open')};$('close').onclick=()=>{$('chat').classList.remove('open')};function send(){let q=$('chatInput').value.trim();if(!q)return;$('msgs').insertAdjacentHTML('beforeend',`<div class="msg usr">${q.replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x]))}</div><div class="msg bot">${advisor(q)}</div>`);$('chatInput').value='';$('msgs').scrollTop=$('msgs').scrollHeight}$('send').onclick=send;$('chatInput').onkeydown=e=>{if(e.key==='Enter')send()};
+// Reactive controls + reliable custom planning-date calendar.
+const calBack=$('calendarBackdrop'), calPop=$('calendarPop'), calGrid=$('calGrid'), calTitle=$('calTitle');
+const calPrev=$('calPrev'), calNext=$('calNext'), planBtn=$('planDateBtn');
+const SEM_START=dt(START), SEM_END=dt(END);
+let calView=new Date(SEM_START.getFullYear(),SEM_START.getMonth(),1);
+
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function openCalendar(){
+  const cur=dt($('planDate').value||START);
+  calView=new Date(cur.getFullYear(),cur.getMonth(),1);
+  renderCalendar();
+  calBack.classList.add('open');
+  calBack.setAttribute('aria-hidden','false');
+  planBtn.setAttribute('aria-expanded','true');
+}
+function closeCalendar(){
+  calBack.classList.remove('open');
+  calBack.setAttribute('aria-hidden','true');
+  planBtn.setAttribute('aria-expanded','false');
+}
+function renderCalendar(){
+  const y=calView.getFullYear(), m=calView.getMonth();
+  calTitle.textContent=calView.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  calPrev.disabled=(y===SEM_START.getFullYear() && m===SEM_START.getMonth());
+  calNext.disabled=(y===SEM_END.getFullYear() && m===SEM_END.getMonth());
+  calGrid.innerHTML='';
+  const first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+  const selected=dt($('planDate').value||START);
+  for(let i=0;i<42;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const b=document.createElement('button');
+    b.type='button'; b.className='cal-day'; b.textContent=d.getDate();
+    const inMonth=d.getMonth()===m;
+    const inRange=d>=SEM_START&&d<=SEM_END;
+    if(!inMonth)b.classList.add('muted');
+    if(sameDay(d,selected))b.classList.add('selected');
+    if(!inRange){b.disabled=true;}
+    else{
+      b.addEventListener('click',()=>{
+        const value=iso(d);
+        $('planDate').value=value;
+        render();
+        closeCalendar();
+      });
+    }
+    calGrid.appendChild(b);
+  }
+}
+planBtn.addEventListener('click',e=>{e.stopPropagation(); if(calBack.classList.contains('open'))closeCalendar();else openCalendar();});
+calPrev.addEventListener('click',()=>{if(!calPrev.disabled){calView.setMonth(calView.getMonth()-1);renderCalendar();}});
+calNext.addEventListener('click',()=>{if(!calNext.disabled){calView.setMonth(calView.getMonth()+1);renderCalendar();}});
+calBack.addEventListener('click',e=>{if(e.target===calBack)closeCalendar();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCalendar();});
+
+$('section').addEventListener('change',render);
+$('leaveDays').addEventListener('input',simulateLeave);
+$('leaveType').addEventListener('change',simulateLeave);
+
+$('reset').onclick=()=>{
+  localStorage.removeItem('attendsafe-unified');
+  $('planDate').value=iso(new Date());
+  if($('planDate').value<START)$('planDate').value=START;
+  if($('planDate').value>END)$('planDate').value=END;
+  $('section').value=Object.keys(DATA)[0];
+  closeCalendar();
+  render();
+};
+
+$('planDate').value=iso(new Date());
+if($('planDate').value<START)$('planDate').value=START;
+if($('planDate').value>END)$('planDate').value=END;
+render();
+
+</script>
+<script>
+
+const ROOM_PERIODS=[
+ {label:"P1",start:"09:00",end:"09:50"},{label:"P2",start:"09:50",end:"10:40"},
+ {label:"P3",start:"10:50",end:"11:40"},{label:"P4",start:"11:40",end:"12:30"},
+ {label:"P5",start:"12:30",end:"13:20"},{label:"P6",start:"13:20",end:"14:10"},
+ {label:"P7",start:"14:10",end:"15:00"},{label:"P8",start:"15:10",end:"16:00"},
+ {label:"P9",start:"16:00",end:"16:50"}];
+const ROOM_DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const SECTIONS={"I ECE-A": {"room": "IST 602", "year": "I", "program": "ECE", "venue": "IST 602", "week": {"Mon": ["E", "E", "B", "A", "", "CHE LAB", "CHE LAB", "F", "CDC"], "Tue": ["C", "B", "A", "D", "", "Workshop", "Workshop", "", ""], "Wed": ["B", "E", "D", "", "", "PPS LAB", "PPS LAB", "PCB Lab", "PCB Lab"], "Thu": ["", "German", "", "A", "", "CDC", "CDC", "NSS", "NSS"], "Fri": ["D", "A", "C", "B", "", "German", "German", "", ""]}, "subjects": {"E": "Philosophy of Engineering", "A": "Advanced Calculus and Complex Analysis", "B": "Chemistry", "C": "Electronic System and PCB Design", "D": "Programming for Problem Solving", "F": "Biology"}}, "I ECE-B": {"room": "IST 602", "year": "I", "program": "ECE", "venue": "IST 602", "week": {"Mon": ["CDC", "F", "CHE LAB", "CHE LAB", "", "E", "E", "B", "A"], "Tue": ["Workshop", "Workshop", "Workshop", "Workshop", "", "C", "B", "A", "D"], "Wed": ["F/G", "", "CDC", "CDC", "PPS LAB", "B", "E", "D", ""], "Thu": ["NSS", "NSS", "C", "A", "", "D", "", "German", ""], "Fri": ["PCB Lab/EC Lab", "PCB Lab/EC Lab", "", "German", "German", "", "", "B", "A"]}, "subjects": {"E": "Philosophy of Engineering", "A": "Advanced Calculus and Complex Analysis", "B": "Chemistry", "C": "Biology", "D": "Programming for Problem Solving", "F": "Electronic System and PCB Design"}}, "I ECE-DS": {"room": "IST 502", "year": "I", "program": "ECE-DS", "venue": "IST 502", "week": {"Mon": ["F", "CDC", "PCB Lab", "", "", "E", "E", "B", "A"], "Tue": ["CHE lab", "NSS", "NSS", "", "", "C", "B", "A", "D"], "Wed": ["CDC", "CDC", "", "", "", "PPS LAB", "PPS LAB", "B", "D"], "Thu": ["F", "A", "D", "D", "German", "B", "B", "", ""], "Fri": ["", "German", "German", "PPS LAB", "", "Workshop", "Workshop", "Workshop", "Workshop"]}, "subjects": {"E": "Philosophy of Engineering", "A": "Advanced Calculus and Complex Analysis", "B": "Chemistry", "C": "Electronic System and PCB Design", "D": "Programming for Problem Solving", "F": "Biology"}}, "I Biotech-B": {"room": "IST 702", "year": "I", "program": "Biotechnology / Biomedical Engineering", "venue": "IST 702", "week": {"Mon": ["C", "YOGA", "YOGA", "F/G", "", "E", "E", "A", "B"], "Tue": ["D", "CDC", "C", "F", "", "B", "A", "D", "D"], "Wed": ["", "Workshop", "Workshop", "Workshop", "", "D", "B", "D", "D"], "Thu": ["", "CHE lab", "A", "C/G", "", "Japanese", "Japanese", "Japanese", "Japanese"], "Fri": ["F", "CDC", "C", "Japanese", "Japanese", "", "", "PPS LAB", "PPS LAB"]}, "subjects": {"E": "Philosophy of Engineering", "A": "Advanced Calculus and Complex Analysis", "B": "Chemistry", "C": "Cell biology / Electronic System", "D": "Programming for Problem Solving", "F": "Biochemistry", "G": "Biology: Human physiology and anatomy"}}, "II ECE-DS A": {"room": "IST 416", "year": "II", "program": "ECE-DS", "venue": "IST 416 / FN", "week": {"Mon": ["E", "A", "I", "I", "", "G-602", "", "LAB-309/107", "LAB-309/107"], "Tue": ["C", "A", "E", "D", "", "G-602", "", "H-TB-106", "H-TB-106"], "Wed": ["A", "B", "C", "D", "", "", "H-TB-106", "", ""], "Thu": ["B", "C", "A", "F", "", "LAB-309/107", "", "", ""], "Fri": ["D", "B", "E", "C", "", "", "", "", ""]}, "subjects": {"A": "Transforms and Boundary Value Problems", "B": "Solid State Devices", "C": "Computer Organization and Architecture", "D": "Digital Logic Design", "E": "Electromagnetic Theory and Interference", "F": "Professional Ethics", "G": "Universal Human Values-II", "H": "Verbal Reasoning", "I": "Social Engineering"}}, "II ECE-DS B": {"room": "IST 411", "year": "II", "program": "ECE-DS", "venue": "IST 411 / AN", "week": {"Mon": ["", "", "LAB-309/107", "LAB-309/107", "", "D", "B", "C", "I"], "Tue": ["LAB-309/107", "LAB-309/107", "", "", "", "C", "D", "E", "A"], "Wed": ["G-401", "G-401", "", "", "", "I", "E", "A", "D"], "Thu": ["G-401", "G-401", "H-TB-106", "H-TB-106", "", "A", "C", "B", "E"], "Fri": ["H-TB-106", "", "", "", "", "F", "A", "B", "C"]}, "subjects": {"A": "Transforms and Boundary Value Problems", "B": "Solid State Devices", "C": "Computer Organization and Architecture", "D": "Digital Logic Design", "E": "Electromagnetic Theory and Interference", "F": "Professional Ethics", "G": "Universal Human Values-II", "H": "Verbal Reasoning", "I": "Social Engineering"}}, "II BME": {"room": "IST 602", "year": "II", "program": "BME", "venue": "IST 602 / FN", "week": {"Mon": ["E", "C", "I", "I", "", "DLMS/EEC-107,309", "", "", ""], "Tue": ["C", "E", "B", "A", "", "H-TB-106", "", "", ""], "Wed": ["B", "D", "A", "", "", "H-TB-106", "G-602", "", ""], "Thu": ["A", "E", "B", "D", "", "", "", "DLMS/EEC-107,309", "DLMS/EEC-107,309"], "Fri": ["F", "A", "C", "D", "", "", "", "G-602", ""]}, "subjects": {"A": "Transforms and Boundary Value Problems", "B": "Biomedical Signals and Systems", "C": "Electric and Electronic Circuits", "D": "Digital Logic for Medical Systems", "E": "Medical Physics", "F": "Professional Ethics", "G": "Universal Human Values-II", "H": "Verbal Reasoning", "I": "Social Engineering"}}, "III ECE-A": {"room": "IST 518", "year": "III", "program": "ECE", "venue": "IST 518 / FN", "week": {"Mon": ["E", "B", "", "B", "A", "", "G-625", "G-625", "", ""], "Tue": ["H", "D", "", "B", "B-Proj", "", "", "G-625", "", ""], "Wed": ["C", "A", "", "D", "F", "", "", "", "LAB-108/309", "LAB-108/309"], "Thu": ["A", "E", "", "C", "F", "", "", "", "", ""], "Fri": ["D", "A", "", "E", "C", "", "LAB-108/309", "", ""]}, "subjects": {"A": "Discrete Mathematics", "B": "Microprocessor, Microcontroller, and Interfacing Techniques", "C": "VLSI Design and Technology", "D": "System and Network on Chip", "E": "Machine learning for all", "F": "Community connect", "G": "Analytical and logical thinking skills", "H": "Indian Art Form"}}, "III ECE-B": {"room": "IST 518", "year": "III", "program": "ECE", "venue": "IST 518 / AN", "week": {"Mon": ["LAB-108/309", "", "", "", "", "E", "B", "A", "D"], "Tue": ["G-625", "", "", "", "", "F", "B", "D", "C"], "Wed": ["G-625", "", "", "", "", "B-Proj", "B", "A", "H"], "Thu": ["LAB-108/309", "", "", "", "", "A", "C", "E", "F"], "Fri": ["", "", "", "", "", "C", "A", "E", "D"]}, "subjects": {"A": "Discrete Mathematics", "B": "Microprocessor, Microcontroller, and Interfacing Techniques", "C": "VLSI Design and Technology", "D": "System and Network on Chip", "E": "Machine learning for all", "F": "Community connect", "G": "Analytical and logical thinking skills", "H": "Indian Art Form"}}, "III ECE-DS": {"room": "IST 519", "year": "III", "program": "ECE-DS", "venue": "IST 519 / FN", "week": {"Mon": ["E", "B", "", "C", "A", "", "", "", ""], "Tue": ["C", "B", "", "D", "F", "", "LAB-108/107", "", ""], "Wed": ["H", "B", "", "A", "C", "", "", "", "G-625"], "Thu": ["A", "D", "", "E", "F", "", "", "", "", ""], "Fri": ["D", "A", "", "E", "B-Proj", "", "G-625", "", "LAB-108/107"]}, "subjects": {"A": "Discrete Mathematics", "B": "Microprocessor, Microcontroller, and Interfacing Techniques", "C": "VLSI Design and Technology", "D": "Machine learning for all", "E": "Database Design and Management", "F": "Community connect", "G": "Analytical and logical thinking skills", "H": "Indian Art Form"}}, "III BME": {"room": "IST 211", "year": "III", "program": "BME", "venue": "IST 211 / AN", "week": {"Mon": ["G-625", "G-625", "MPMC LAB-107", "MPMC LAB-107", "", "E", "B", "F", "H"], "Tue": ["BIO DSP LAB-108", "BIO DSP LAB-108", "G-625", "", "", "C", "D", "A", "B"], "Wed": ["", "", "", "", "", "C", "A", "F", "D"], "Thu": ["", "", "", "I-108", "", "A", "C", "E", "B"], "Fri": ["I-108", "", "", "", "", "F", "A", "D", "E"]}, "subjects": {"A": "Probability and Statistics", "B": "Microcontrollers and its Application in Medicine", "C": "Biomedical Signal Processing", "D": "Biometrics", "E": "Modern wireless communication system", "F": "Principles of Medical Imaging", "G": "Analytical and Logical Thinking Skills", "H": "Indian Art Form", "I": "Community Connect"}}, "IV ECE-A": {"room": "IST 225", "year": "IV", "program": "ECE", "venue": "IST 225", "week": {"Mon": ["C", "", "A", "D", "", "", "", "", ""], "Tue": ["C", "D", "B", "F", "", "", "", "", ""], "Wed": ["B", "LAB-IST 108", "E", "F", "", "", "", "", ""], "Thu": ["F", "A", "E", "B", "", "", "", "", ""], "Fri": ["C", "A", "D", "E", "", "", "", "", ""]}, "subjects": {"A": "Behavioural Psychology", "B": "Wireless Communication and Antenna Systems", "C": "Computer Communication and Network Security", "D": "Semiconductor Memory Design", "E": "Scripting Language for Electronic Design Automation", "F": "Machine learning for all"}}, "IV ECE-B": {"room": "IST 227", "year": "IV", "program": "ECE", "venue": "IST 227", "week": {"Mon": ["C", "A", "", "E", "F", "", "", "", ""], "Tue": ["C", "E", "", "F", "B", "", "", "", ""], "Wed": ["C", "D", "", "A", "B", "", "", "", ""], "Thu": ["D", "B", "", "LAB-IST 108", "A", "", "", "", ""], "Fri": ["E", "D", "", "F", "", "", "", "", ""]}, "subjects": {"A": "Behavioural Psychology", "B": "Wireless Communication and Antenna Systems", "C": "Computer Communication and Network Security", "D": "Semiconductor Memory Design", "E": "Scripting Language for Electronic Design Automation", "F": "Machine learning for all"}}};
+const SPECIAL_ROOMS=[
+ "LAB-108/107","LAB-108/309","LAB-309/107","LAB-IST 108","G-625","G-401","G-602","H-TB-106",
+ "I-108","DLMS/EEC-107,309","MPMC LAB-107","BIO DSP LAB-108","CHE LAB","PPS LAB","PCB Lab","Workshop","NSS","CDC","German","YOGA","Japanese"
+];
+const FLOOR_ROOMS={};
+function floorOf(room){
+ let m=room.match(/(?:IST\s*|G-|H-TB-|I-|LAB-)?(\d{3})/i);
+ if(m) return Math.floor(Number(m[1])/100);
+ if(/ground/i.test(room)) return 0;
+ if(room.includes("625")) return 6;
+ return 1;
+}
+function cleanRoom(s){return s.replace(/\s+/g," ").trim()}
+const homeRooms=[...new Set(Object.values(SECTIONS).map(s=>cleanRoom(s.room)))];
+const specialKnown=[...new Set(SPECIAL_ROOMS)];
+const allRooms=[...new Set([...homeRooms,...specialKnown])].sort((a,b)=>floorOf(a)-floorOf(b)||a.localeCompare(b));
+function displayFloor(n){return n===0?"Ground":n===1?"1st":n===2?"2nd":n===3?"3rd":n+"th"}
+function init(){
+ document.getElementById("roomCount").textContent=allRooms.length;
+ const ds=document.getElementById("daySel"); ROOM_DAYS.slice(1,6).forEach(d=>ds.add(new Option(d,d))); ds.value=currentDay();
+ const ts=document.getElementById("timeSel"); ts.add(new Option("Live time","live")); ROOM_PERIODS.forEach((p,i)=>ts.add(new Option(p.label+" · "+p.start+"–"+p.end,String(i))));
+ ts.value="live";
+ ds.onchange=renderAll; ts.onchange=renderAll;
+ renderAll(); setInterval(()=>{updateClock();renderAll()},1000);
+}
+function currentDay(){return ROOM_DAYS[new Date().getDay()]}
+function nowMinutes(){let d=new Date();return d.getHours()*60+d.getMinutes()+d.getSeconds()/60}
+function parseMin(s){let [h,m]=s.split(":").map(Number);return h*60+m}
+function slotAtNow(){
+ const n=nowMinutes(); for(let i=0;i<ROOM_PERIODS.length;i++){let p=ROOM_PERIODS[i];if(n>=parseMin(p.start)&&n<parseMin(p.end))return i}
+ return -1;
+}
+function selectedSlot(){let v=document.getElementById("timeSel").value;if(v==="live")return slotAtNow();return Number(v)}
+function sectionCell(sec,day,slot){return (sec.week[day]||[])[slot]||""}
+function isHomeOccupied(room,day,slot){
+ let occupied=false, details=[];
+ Object.entries(SECTIONS).forEach(([name,sec])=>{
+  if(sec.room!==room)return;
+  let cell=sectionCell(sec,day,slot);
+  if(cell && !isSpecialCell(cell)) {occupied=true;details.push({name,cell})}
+ });
+ return {occupied,details};
+}
+function isSpecialCell(cell){
+ const c=cell.toLowerCase();
+ return /lab|workshop|nss|cdc|german|yoga|japanese|625|401|602|tb-106|i-108|dlms|che|pps|pcb/.test(c);
+}
+function specialOccupied(room,day,slot){
+ const r=room.toLowerCase(); let details=[];
+ Object.entries(SECTIONS).forEach(([name,sec])=>{
+   let cell=sectionCell(sec,day,slot).toLowerCase();
+   if(cell && r && cell.includes(r)) details.push({name,cell});
+   if(room==="LAB-108/107" && /lab-108\/107/.test(cell)) details.push({name,cell});
+   if(room==="LAB-108/309" && /lab-108\/309/.test(cell)) details.push({name,cell});
+   if(room==="LAB-309/107" && /lab-309\/107/.test(cell)) details.push({name,cell});
+   if(room==="G-625" && /g-625/.test(cell)) details.push({name,cell});
+   if(room==="G-401" && /g-401/.test(cell)) details.push({name,cell});
+   if(room==="G-602" && /g-602/.test(cell)) details.push({name,cell});
+   if(room==="H-TB-106" && /h-tb-106/.test(cell)) details.push({name,cell});
+   if(room==="I-108" && /i-108/.test(cell)) details.push({name,cell});
+   if(room==="DLMS/EEC-107,309" && /dlms\/eec-107,309/.test(cell)) details.push({name,cell});
+   if(room==="MPMC LAB-107" && /mpmc lab-107/.test(cell)) details.push({name,cell});
+   if(room==="BIO DSP LAB-108" && /bio dsp lab-108/.test(cell)) details.push({name,cell});
+   if(room==="LAB-IST 108" && /lab-ist 108/.test(cell)) details.push({name,cell});
+ });
+ return {occupied:details.length>0,details};
+}
+function roomState(room,day,slot){
+ if(slot<0)return {occupied:false,details:[],reason:"between periods"};
+ const h=isHomeOccupied(room,day,slot), s=specialOccupied(room,day,slot);
+ if(h.occupied||s.occupied)return {occupied:true,details:[...h.details,...s.details]};
+ return {occupied:false,details:[]};
+}
+function nextEvent(room,fromDate=new Date()){
+ let d=new Date(fromDate);
+ for(let offset=0;offset<8;offset++){
+  const day=ROOM_DAYS[d.getDay()];
+  for(let i=0;i<ROOM_PERIODS.length;i++){
+   let start=new Date(d); let [hh,mm]=ROOM_PERIODS[i].start.split(":").map(Number);start.setHours(hh,mm,0,0);
+   if(start<=fromDate)continue;
+   if(roomState(room,day,i).occupied)return {date:start,slot:i,day};
+  }
+  d.setDate(d.getDate()+1);d.setHours(0,0,0,0);
+ }
+ return null;
+}
+function remainingToNext(room){
+ let now=new Date(); let ev=nextEvent(room,now); if(!ev)return null;
+ return Math.max(0,Math.floor((ev.date-now)/1000));
+}
+function fmtCountdown(sec){if(sec==null)return "No next class";let h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return [h,m,s].map((x,i)=>i===0?String(x).padStart(2,"0"):String(x).padStart(2,"0")).join(":")}
+function roomAvailabilityForDuration(room,durationHours){
+ const start=new Date(); const end=new Date(start.getTime()+durationHours*3600000);
+ let t=new Date(start); t.setSeconds(0,0);
+ while(t<end){
+  let day=ROOM_DAYS[t.getDay()], slot=-1;
+  for(let i=0;i<ROOM_PERIODS.length;i++){let a=parseMin(ROOM_PERIODS[i].start),b=parseMin(ROOM_PERIODS[i].end),m=t.getHours()*60+t.getMinutes();if(m>=a&&m<b){slot=i;break}}
+  if(slot>=0 && roomState(room,day,slot).occupied)return false;
+  t=new Date(t.getTime()+5*60000);
+ }
+ return true;
+}
+function currentRoomList(floor){
+ return allRooms.filter(r=>floor==null||floorOf(r)===floor)
+}
+function renderAll(){
+ updateClock();
+ let floor=document.querySelector(".floorTab.active")?.dataset.floor; floor=floor==="all"||!floor?null:Number(floor);
+ renderMini();renderTabs();renderGrid(floor);renderMap();
+}
+function renderTabs(){
+ let floors=[...new Set(allRooms.map(floorOf))].sort((a,b)=>a-b);
+ const el=document.getElementById("floorTabs"), active=el.querySelector(".active")?.dataset.floor||"all";
+ el.innerHTML='<button class="floorTab '+(active==="all"?'active':'')+'" data-floor="all">All floors</button>'+floors.map(f=>`<button class="floorTab ${String(f)===active?'active':''}" data-floor="${f}">${displayFloor(f)} floor</button>`).join("");
+ el.querySelectorAll(".floorTab").forEach(b=>b.onclick=()=>{el.querySelectorAll(".floorTab").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderGrid(b.dataset.floor==="all"?null:Number(b.dataset.floor));});
+}
+function renderMini(){
+ const rooms=allRooms.slice(0,9), day=currentDay(),slot=slotAtNow();
+ document.getElementById("miniRooms").innerHTML=rooms.map(r=>{let st=roomState(r,day,slot);return `<div class="miniRoom ${st.occupied?'busy':''}"><b>${r}</b><i>${st.occupied?'OCCUPIED':'AVAILABLE'}</i></div>`}).join("");
+}
+function renderGrid(floor){
+ let day=document.getElementById("daySel").value,slot=selectedSlot(), live=document.getElementById("timeSel").value==="live";
+ let rooms=currentRoomList(floor);
+ document.getElementById("roomGrid").innerHTML=rooms.map(r=>{
+  let st=roomState(r,day,slot);let sec=live?remainingToNext(r):null;let next=nextEvent(r,new Date());
+  return `<article class="room ${st.occupied?'busy':'available'}" onclick="openRoom('${esc(r)}')">
+   <div class="roomTop"><div class="roomName">${r}</div><div class="floorTag">${displayFloor(floorOf(r))}</div></div>
+   <div class="status"><i class="dot"></i>${st.occupied?'OCCUPIED':'AVAILABLE'}</div>
+   <div class="roomMeta">${st.occupied?(st.details[0]?.name||'Scheduled class'):(next?`Free until ${next.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:'No scheduled class found')}</div>
+   <div class="roomFoot"><span class="timer">${live&&!st.occupied?fmtCountdown(sec):slot>=0?ROOM_PERIODS[slot].start+'–'+ROOM_PERIODS[slot].end:'Between periods'}</span><button class="miniBtn" onclick="event.stopPropagation();openRoom('${esc(r)}')">Inspect</button></div>
+  </article>`
+ }).join("");
+}
+function renderMap(){
+ let floors=[...new Set(allRooms.map(floorOf))].sort((a,b)=>b-a),day=currentDay(),slot=slotAtNow();
+ document.getElementById("building").innerHTML=floors.map(f=>{
+  let rooms=currentRoomList(f);return `<div class="floor"><div class="floorLabel">${displayFloor(f)} floor<br><span>${rooms.length} mapped spaces</span></div><div class="floorPlane">${rooms.map(r=>{let st=roomState(r,day,slot);return `<div class="mapRoom ${st.occupied?'busy':'available'}" onclick="openRoom('${esc(r)}')"><div class="n">${r}</div><div class="s">${st.occupied?'Occupied':'Free now'} · tap to inspect</div></div>`}).join("")}</div></div>`
+ }).join("");
+}
+function esc(s){return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+let activeRoom=null, claim=null;
+function openRoom(room){
+ activeRoom=room;document.getElementById("drawer").classList.add("show");updateDrawer();if(window.drawerTimer)clearInterval(window.drawerTimer);window.drawerTimer=setInterval(updateDrawer,1000);
+}
+function closeDrawer(){document.getElementById("drawer").classList.remove("show");if(window.drawerTimer)clearInterval(window.drawerTimer)}
+function updateDrawer(){
+ if(!activeRoom)return;let room=activeRoom,day=currentDay(),slot=slotAtNow(),st=roomState(room,day,slot),next=nextEvent(room,new Date());
+ document.getElementById("dRoom").textContent=room;document.getElementById("dFloor").textContent=displayFloor(floorOf(room))+" floor";document.getElementById("dFloor2").textContent=displayFloor(floorOf(room));
+ const box=document.getElementById("dStatus");box.className="bigStatus "+(st.occupied?"busy":"");document.getElementById("dStatusText").textContent=st.occupied?"OCCUPIED":"AVAILABLE";
+ if(st.occupied){
+  document.getElementById("dCount").textContent=next?fmtCountdown(Math.max(0,Math.floor((next.date-new Date())/1000))):"--";
+  document.getElementById("dSub").textContent=next?`next scheduled start ${next.date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:"No upcoming event found";
+ }else{
+  let sec=remainingToNext(room);document.getElementById("dCount").textContent=fmtCountdown(sec);document.getElementById("dSub").textContent="free until next scheduled class";
+ }
+ document.getElementById("dNext").textContent=next?next.date.toLocaleString([],{weekday:"short",hour:"2-digit",minute:"2-digit"}):"—";
+ document.getElementById("dType").textContent=specialKnown.includes(room)?"Lab / special space":"Classroom";
+ document.getElementById("claimBtn").textContent=claim===room?"✓ Room claimed":"Claim this room";
+}
+function claimRoom(){
+ if(!activeRoom)return;claim=activeRoom;localStorage.setItem("roomiq_claim",claim);showToast("Room claimed. Squad Share is ready.");renderAll();updateDrawer();
+}
+function shareRoom(){
+ if(!activeRoom)return;let next=nextEvent(activeRoom,new Date()),until=next?next.date.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"later";
+ let text=`📍 Heading to ${activeRoom}. It's free until ${until}. Come fast! — ROOMIQ`;
+ window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
+}
+function demo(t){document.getElementById("query").value=t;runAI()}
+function runAI(){
+ let q=document.getElementById("query").value.trim().toLowerCase();if(!q)return;
+ let floor=null;let m=q.match(/(?:floor|level)\s*(?:number\s*)?(\d+)/);if(m)floor=Number(m[1]);if(/ground/.test(q))floor=0;
+ let hours=1;let hm=q.match(/(\d+(?:\.\d+)?)\s*hours?/);if(hm)hours=Math.max(.25,Number(hm[1]));
+ let team=/team|squad|friends|group|us\b/.test(q);
+ let ac=/\bac\b|air[- ]?condition/.test(q);
+ let rooms=currentRoomList(floor).filter(r=>roomAvailabilityForDuration(r,hours));
+ if(ac)rooms=[]; // source PDFs do not document AC status, so never claim an AC match
+ let result=document.getElementById("aiResult");result.classList.add("show");
+ let constraint=[floor===0?"ground floor":floor!=null?displayFloor(floor)+" floor":"any floor",hours+"h",team?"team-ready":"individual",ac?"AC requested":"standard room"].join(" · ");
+ let note=ac?"AC status is not specified in the supplied timetables, so ROOMIQ will not falsely label a room as AC.":"Availability is checked against the supplied timetable schedule.";
+ result.innerHTML=`<div class="intent"><div><b>Smart intent detected</b><div class="muted">${constraint}</div></div><span>${rooms.length} match${rooms.length===1?'':'es'}</span></div>
+ <div style="margin-top:8px;color:#93a5bd;font-size:12px">${note}</div>
+ <div class="aiList">${rooms.slice(0,8).map(r=>`<div class="aiItem"><div><b>${r}</b><br><small>${displayFloor(floorOf(r))} floor · free for ${hours}h window</small></div><button class="go" onclick="openRoom('${esc(r)}')">Inspect</button></div>`).join("")||'<div class="aiItem"><div><b>No verified match</b><br><small>Try another floor, shorter duration, or remove the AC requirement.</small></div></div>'}</div>`;
+ document.getElementById("floors").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function updateClock(){
+ let d=new Date();document.getElementById("liveClock").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+}
+function showToast(t){let x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2300)}
+init();
+
+</script>
+</body>
+</html>
